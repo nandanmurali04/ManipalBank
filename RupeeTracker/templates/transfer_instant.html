@@ -1,0 +1,104 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manipal Bank - Instant Transfer{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow border-0">
+            <div class="card-header bg-warning text-dark">
+                <h3 class="mb-0"><i class="fas fa-bolt me-2"></i>Instant Transfer</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h5>Available Balance</h5>
+                    <h2 class="balance-display fw-bold">₹{{ "%.2f"|format(user.balance) }}</h2>
+                </div>
+                
+                <form method="POST" action="{{ url_for('banking.transfer_instant') }}">
+                    <div class="mb-3">
+                        <label for="recipient_email" class="form-label">Recipient Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                            <input type="email" class="form-control" id="recipient_email" name="recipient_email" required>
+                        </div>
+                        <div class="form-text">Enter the email address of the Manipal Bank account holder</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="recipient_name" class="form-label">Recipient Name (Optional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="recipient_name" name="recipient_name">
+                        </div>
+                        <div class="form-text">Enter if you want to save this recipient as beneficiary</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount (₹)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" class="form-control" id="amount" name="amount" min="1" max="{{ user.balance }}" step="any" required>
+                        </div>
+                        <div class="form-text">Maximum transfer: ₹{{ "%.2f"|format(user.balance) }}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description (Optional)</label>
+                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="save_beneficiary" name="save_beneficiary">
+                        <label class="form-check-label" for="save_beneficiary">Save as beneficiary for future transfers</label>
+                    </div>
+                    
+                    <div id="beneficiary_fields" class="mb-3 d-none">
+                        <label for="nickname" class="form-label">Nickname for Beneficiary (Optional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-tag"></i></span>
+                            <input type="text" class="form-control" id="nickname" name="nickname" placeholder="e.g. Mom, Dad, Friend">
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning btn-lg" onclick="return confirmAction('Are you sure you want to transfer this amount?')">
+                            <i class="fas fa-paper-plane me-2"></i>Transfer Money
+                        </button>
+                        <a href="{{ url_for('banking.transfer_options') }}" class="btn btn-light">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4 bg-light border-0">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-shield-alt me-2 text-warning"></i>Transfer Information</h5>
+                <ul class="mt-2 mb-0">
+                    <li>Instant transfers are processed immediately</li>
+                    <li>Daily transfer limit: ₹1,00,000</li>
+                    <li>No processing fees for instant transfers</li>
+                    <li>Recurring transfers can be set up in the Scheduled Payments section</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const saveCheckbox = document.getElementById('save_beneficiary');
+        const beneficiaryFields = document.getElementById('beneficiary_fields');
+        
+        saveCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                beneficiaryFields.classList.remove('d-none');
+            } else {
+                beneficiaryFields.classList.add('d-none');
+            }
+        });
+    });
+</script>
+{% endblock %}

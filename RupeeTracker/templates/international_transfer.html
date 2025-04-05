@@ -1,0 +1,193 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manipal Bank - International Transfer{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow border-0">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="fas fa-globe me-2"></i>International Transfer</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h5>Available Balance</h5>
+                    <h2 class="balance-display fw-bold">₹{{ "%.2f"|format(user.balance) }}</h2>
+                </div>
+                
+                <form method="POST" action="{{ url_for('banking.international_transfer') }}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="recipient_name" class="form-label">Recipient Name</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input type="text" class="form-control" id="recipient_name" name="recipient_name" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="recipient_address" class="form-label">Recipient Address (Optional)</label>
+                                <input type="text" class="form-control" id="recipient_address" name="recipient_address">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="recipient_bank" class="form-label">Recipient Bank</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-university"></i></span>
+                                    <input type="text" class="form-control" id="recipient_bank" name="recipient_bank" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="recipient_account" class="form-label">Account Number</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
+                                    <input type="text" class="form-control" id="recipient_account" name="recipient_account" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="swift_code" class="form-label">SWIFT/BIC Code</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-code"></i></span>
+                                    <input type="text" class="form-control" id="swift_code" name="swift_code" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="currency_code" class="form-label">Transfer Currency</label>
+                                <select class="form-select" id="currency_code" name="currency_code" required>
+                                    <option value="USD">US Dollar (USD)</option>
+                                    <option value="EUR">Euro (EUR)</option>
+                                    <option value="GBP">British Pound (GBP)</option>
+                                    <option value="AUD">Australian Dollar (AUD)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="amount" class="form-label">Amount (₹)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">₹</span>
+                                    <input type="number" class="form-control" id="amount" name="amount" min="1000" max="{{ user.balance }}" step="any" required>
+                                </div>
+                                <div class="form-text">Minimum: ₹1,000 | Maximum: ₹{{ "%.2f"|format(user.balance) }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="converted_amount" class="form-label">Approximate Converted Amount</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="currency_symbol">$</span>
+                                    <input type="text" class="form-control" id="converted_amount" readonly>
+                                </div>
+                                <div class="form-text">Exchange rates updated hourly</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="purpose" class="form-label">Purpose of Transfer</label>
+                        <select class="form-select" id="purpose" name="purpose" required>
+                            <option value="family_support">Family Support</option>
+                            <option value="education">Education/Tuition Fee</option>
+                            <option value="medical">Medical Expenses</option>
+                            <option value="business">Business Payment</option>
+                            <option value="travel">Travel</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="save_beneficiary" name="save_beneficiary">
+                        <label class="form-check-label" for="save_beneficiary">Save as international beneficiary for future transfers</label>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <i class="fas fa-info-circle fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5 class="alert-heading">Transfer Information</h5>
+                                <p class="mb-1">International transfers typically take 1-3 business days to complete.</p>
+                                <p class="mb-0">A service fee of 0.5% will be applied to your transfer amount.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg" onclick="return confirmAction('Are you sure you want to initiate this international transfer?')">
+                            <i class="fas fa-plane me-2"></i>Send Money Internationally
+                        </button>
+                        <a href="{{ url_for('banking.transfer_options') }}" class="btn btn-light">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const amountInput = document.getElementById('amount');
+        const currencySelect = document.getElementById('currency_code');
+        const convertedAmountInput = document.getElementById('converted_amount');
+        const currencySymbol = document.getElementById('currency_symbol');
+        
+        // Exchange rates (INR to foreign currency)
+        const exchangeRates = {
+            'USD': {{ exchange_rates.USD }},
+            'EUR': {{ exchange_rates.EUR }},
+            'GBP': {{ exchange_rates.GBP }},
+            'AUD': {{ exchange_rates.AUD }}
+        };
+        
+        // Currency symbols
+        const symbols = {
+            'USD': '$',
+            'EUR': '€',
+            'GBP': '£',
+            'AUD': 'A$'
+        };
+        
+        function updateConvertedAmount() {
+            const amount = parseFloat(amountInput.value) || 0;
+            const currency = currencySelect.value;
+            const rate = exchangeRates[currency];
+            
+            if (amount && rate) {
+                // Convert INR to selected currency
+                const converted = amount / rate;
+                convertedAmountInput.value = converted.toFixed(2);
+                currencySymbol.textContent = symbols[currency];
+            } else {
+                convertedAmountInput.value = '';
+            }
+        }
+        
+        amountInput.addEventListener('input', updateConvertedAmount);
+        currencySelect.addEventListener('change', updateConvertedAmount);
+        
+        // Initial update
+        updateConvertedAmount();
+    });
+</script>
+{% endblock %}

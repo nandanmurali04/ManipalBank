@@ -1,0 +1,64 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manipal Bank - Transfer Money{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow border-0">
+            <div class="card-header bg-purple text-white">
+                <h3 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Transfer Money</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h5>Available Balance</h5>
+                    <h2 class="balance-display fw-bold">₹{{ "%.2f"|format(user.balance) }}</h2>
+                </div>
+                
+                <form method="POST" action="{{ url_for('banking.transfer') }}">
+                    <div class="mb-3">
+                        <label for="recipient_email" class="form-label">Recipient Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="email" class="form-control" id="recipient_email" name="recipient_email" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount (₹)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" class="form-control" id="amount" name="amount" min="1" max="{{ user.balance }}" step="any" required>
+                        </div>
+                        <div class="form-text">Maximum transfer: ₹{{ "%.2f"|format(user.balance) }}</div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Description (Optional)</label>
+                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-paper-plane me-2"></i>Transfer Money
+                        </button>
+                        <a href="{{ url_for('banking.dashboard') }}" class="btn btn-light">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4 bg-light border-0">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-shield-alt me-2 text-warning"></i>Fraud Detection Information</h5>
+                <p>Our system automatically monitors for potentially suspicious transactions. Transfers may be flagged if:</p>
+                <ul class="mb-0">
+                    <li>The amount exceeds ₹50,000</li>
+                    <li>You make more than 3 transfers within 5 minutes</li>
+                    <li>You're transferring from a new device or location</li>
+                </ul>
+                <div class="alert alert-info mt-3 mb-0">
+                    <small>Flagged transactions will still be processed, but you will receive a notification.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

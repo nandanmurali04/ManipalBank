@@ -1,0 +1,140 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manipal Bank - Transfer Options{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow border-0">
+            <div class="card-header bg-purple text-white">
+                <h3 class="mb-0"><i class="fas fa-exchange-alt me-2"></i>Transfer Money</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h5>Available Balance</h5>
+                    <h2 class="balance-display fw-bold">₹{{ "%.2f"|format(user.balance) }}</h2>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 transfer-option-card">
+                            <div class="card-body text-center p-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-bolt text-warning" style="font-size: 3rem;"></i>
+                                </div>
+                                <h4>Instant Transfer</h4>
+                                <p class="text-muted">Transfer money instantly to any Manipal Bank user</p>
+                                <div class="d-grid gap-2 mt-3">
+                                    <a href="{{ url_for('banking.transfer_instant') }}" class="btn btn-warning">
+                                        <i class="fas fa-paper-plane me-2"></i>Transfer Now
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 transfer-option-card">
+                            <div class="card-body text-center p-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-globe text-primary" style="font-size: 3rem;"></i>
+                                </div>
+                                <h4>International Transfer</h4>
+                                <p class="text-muted">Send money to recipients abroad with SWIFT</p>
+                                <div class="d-grid gap-2 mt-3">
+                                    <a href="{{ url_for('banking.international_transfer') }}" class="btn btn-primary">
+                                        <i class="fas fa-plane me-2"></i>Send Abroad
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4 mb-4">
+                        <div class="card h-100 transfer-option-card">
+                            <div class="card-body text-center p-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-mobile-alt text-success" style="font-size: 3rem;"></i>
+                                </div>
+                                <h4>Pay to Contact</h4>
+                                <p class="text-muted">Send money to anyone using their phone number</p>
+                                <div class="d-grid gap-2 mt-3">
+                                    <a href="{{ url_for('banking.pay_to_contact') }}" class="btn btn-success">
+                                        <i class="fas fa-address-book me-2"></i>Pay Contact
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 transfer-option-card">
+                            <div class="card-body text-center p-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-user-friends text-info" style="font-size: 3rem;"></i>
+                                </div>
+                                <h4>Manage Payees</h4>
+                                <p class="text-muted">Add, edit or delete your saved beneficiaries</p>
+                                <div class="d-grid gap-2 mt-3">
+                                    <a href="{{ url_for('banking.manage_payees') }}" class="btn btn-info text-white">
+                                        <i class="fas fa-address-card me-2"></i>Manage Payees
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 transfer-option-card">
+                            <div class="card-body text-center p-4">
+                                <div class="mb-3">
+                                    <i class="fas fa-calendar-alt text-purple" style="font-size: 3rem;"></i>
+                                </div>
+                                <h4>Scheduled Payments</h4>
+                                <p class="text-muted">Schedule one-time or recurring payments</p>
+                                <div class="d-grid gap-2 mt-3">
+                                    <a href="{{ url_for('banking.scheduled_payments') }}" class="btn btn-purple">
+                                        <i class="fas fa-clock me-2"></i>Schedule Payments
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4 bg-light border-0">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h5 class="card-title"><i class="fas fa-shield-alt me-2 text-warning"></i>Enhanced Security</h5>
+                        <p>Our system automatically monitors for potentially suspicious transactions. Different transfer methods have different daily limits:</p>
+                        <ul class="mb-0">
+                            <li><strong>Instant Transfer:</strong> Up to ₹1,00,000 per day</li>
+                            <li><strong>International Transfer:</strong> Up to ₹5,00,000 per day (subject to RBI guidelines)</li>
+                            <li><strong>Pay to Contact:</strong> Up to ₹50,000 per day</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="text-center">
+                            <i class="fas fa-lock text-purple" style="font-size: 5rem; opacity: 0.7;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .transfer-option-card {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+    }
+    .transfer-option-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+</style>
+{% endblock %}

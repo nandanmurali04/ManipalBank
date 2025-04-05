@@ -1,0 +1,66 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manipal Bank - Welcome{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow-lg border-0 mb-5">
+            <div class="card-body p-0">
+                <div class="row">
+                    <div class="col-md-6 bg-purple text-white p-5">
+                        <h1 class="display-4 fw-bold">Welcome to Manipal Bank</h1>
+                        <p class="lead">Secure, reliable banking with fraud detection</p>
+                        <div class="mt-5">
+                            <p><i class="fas fa-check-circle me-2"></i> Easy deposits and withdrawals</p>
+                            <p><i class="fas fa-check-circle me-2"></i> Secure money transfers</p>
+                            <p><i class="fas fa-check-circle me-2"></i> Advanced fraud detection</p>
+                            <p><i class="fas fa-check-circle me-2"></i> 24/7 account monitoring</p>
+                        </div>
+                        <div class="mt-5">
+                            <a href="{{ url_for('auth.register') }}" class="btn btn-light px-4 me-3">Register Now</a>
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light px-4">Login</a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 p-5">
+                        <div class="text-center mb-4">
+                            <i class="fas fa-shield-alt text-purple" style="font-size: 4rem;"></i>
+                        </div>
+                        <h2 class="text-center mb-4">Secure Banking Features</h2>
+                        <div class="row mt-4">
+                            <div class="col-md-6 mb-3">
+                                <div class="feature-box text-center p-3">
+                                    <i class="fas fa-money-bill-wave text-purple mb-3" style="font-size: 2rem;"></i>
+                                    <h5>Quick Deposits</h5>
+                                    <p class="text-muted small">Instantly add funds to your account</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="feature-box text-center p-3">
+                                    <i class="fas fa-exchange-alt text-purple mb-3" style="font-size: 2rem;"></i>
+                                    <h5>Easy Transfers</h5>
+                                    <p class="text-muted small">Send money to any account quickly</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="feature-box text-center p-3">
+                                    <i class="fas fa-user-shield text-purple mb-3" style="font-size: 2rem;"></i>
+                                    <h5>Fraud Protection</h5>
+                                    <p class="text-muted small">Integrated fraud detection system</p>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="feature-box text-center p-3">
+                                    <i class="fas fa-history text-purple mb-3" style="font-size: 2rem;"></i>
+                                    <h5>Transaction History</h5>
+                                    <p class="text-muted small">Complete record of all activities</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

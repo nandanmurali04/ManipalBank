@@ -1,0 +1,52 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manipal Bank - Deposit Money{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow border-0">
+            <div class="card-header bg-purple text-white">
+                <h3 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Deposit Money</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h5>Current Balance</h5>
+                    <h2 class="balance-display fw-bold">₹{{ "%.2f"|format(user.balance) }}</h2>
+                </div>
+                
+                <form method="POST" action="{{ url_for('banking.deposit') }}">
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount (₹)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" class="form-control" id="amount" name="amount" min="1" step="any" required>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label for="description" class="form-label">Description (Optional)</label>
+                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
+                            <i class="fas fa-check-circle me-2"></i>Deposit Money
+                        </button>
+                        <a href="{{ url_for('banking.dashboard') }}" class="btn btn-light">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4 bg-light border-0">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Deposit Information</h5>
+                <ul class="mt-2 mb-0">
+                    <li>Deposits are credited to your account immediately.</li>
+                    <li>Maximum deposit limit per transaction is ₹10,00,000.</li>
+                    <li>For larger amounts, please contact customer support.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

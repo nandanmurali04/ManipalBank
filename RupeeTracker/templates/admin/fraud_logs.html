@@ -1,0 +1,79 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manipal Bank - Fraud Logs{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card shadow border-0">
+            <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Fraud Detection Logs</h3>
+                <div>
+                    <a href="{{ url_for('admin.logout') }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-sign-out-alt me-1"></i>Admin Logout
+                    </a>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Log ID</th>
+                                <th>Detected At</th>
+                                <th>Transaction ID</th>
+                                <th>User</th>
+                                <th>Amount</th>
+                                <th>Fraud Reason</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if fraud_logs %}
+                                {% for log_data in fraud_logs %}
+                                    <tr>
+                                        <td><small class="text-muted">#{{ log_data.log.id }}</small></td>
+                                        <td>{{ log_data.log.detected_at.strftime('%d %b, %Y %H:%M') }}</td>
+                                        <td><a href="#">#{{ log_data.transaction.id }}</a></td>
+                                        <td>
+                                            {{ log_data.sender.name }} 
+                                            {% if log_data.recipient %}
+                                                <i class="fas fa-arrow-right mx-1 small"></i> {{ log_data.recipient.name }}
+                                            {% endif %}
+                                        </td>
+                                        <td>₹{{ "%.2f"|format(log_data.transaction.amount) }}</td>
+                                        <td>
+                                            <span class="badge bg-danger">{{ log_data.log.reason }}</span>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-dark">
+                                                <i class="fas fa-search me-1"></i>Review
+                                            </button>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="7" class="text-center py-4">No fraud logs found.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4 bg-light border-0">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-info-circle me-2"></i>Fraud Detection System</h5>
+                <p>The system automatically flags potentially suspicious transactions based on the following rules:</p>
+                <ul class="mb-0">
+                    <li><strong>High Amount:</strong> Transactions over ₹50,000</li>
+                    <li><strong>Rapid Transactions:</strong> More than 3 transfers within 5 minutes</li>
+                    <li><strong>New Location:</strong> Transfers from a new IP address (not seen in last 24 hours)</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

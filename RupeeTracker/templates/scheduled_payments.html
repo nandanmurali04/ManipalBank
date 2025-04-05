@@ -1,0 +1,283 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manipal Bank - Scheduled Payments{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow border-0">
+            <div class="card-header bg-purple text-white">
+                <h3 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Scheduled Payments</h3>
+            </div>
+            <div class="card-body p-4">
+                <ul class="nav nav-tabs mb-4" id="schedulesTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="pending-tab" data-bs-toggle="tab" data-bs-target="#pending" type="button" role="tab" aria-controls="pending" aria-selected="true">
+                            <i class="fas fa-clock me-1"></i> Pending
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button" role="tab" aria-controls="completed" aria-selected="false">
+                            <i class="fas fa-check-circle me-1"></i> Completed
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="create-tab" data-bs-toggle="tab" data-bs-target="#create" type="button" role="tab" aria-controls="create" aria-selected="false">
+                            <i class="fas fa-plus-circle me-1"></i> Schedule New
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="schedulesTabsContent">
+                    <!-- Pending Payments Tab -->
+                    <div class="tab-pane fade show active" id="pending" role="tabpanel" aria-labelledby="pending-tab">
+                        {% if pending_payments %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Recipient</th>
+                                            <th>Amount</th>
+                                            <th>Scheduled Date</th>
+                                            <th>Frequency</th>
+                                            <th>Description</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for payment in pending_payments %}
+                                        <tr>
+                                            <td>
+                                                {% if payment.payee %}
+                                                    {{ payment.payee.name }}
+                                                {% else %}
+                                                    {{ payment.recipient_email }}
+                                                {% endif %}
+                                            </td>
+                                            <td>₹{{ "%.2f"|format(payment.amount) }}</td>
+                                            <td>{{ payment.scheduled_date.strftime('%d %b %Y') }}</td>
+                                            <td>
+                                                {% if payment.frequency == 'once' %}
+                                                    One-time
+                                                {% elif payment.frequency == 'daily' %}
+                                                    Daily
+                                                {% elif payment.frequency == 'weekly' %}
+                                                    Weekly
+                                                {% elif payment.frequency == 'monthly' %}
+                                                    Monthly
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ payment.description or '-' }}</td>
+                                            <td>
+                                                <a href="#" class="btn btn-sm btn-warning me-1" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-danger" title="Cancel" onclick="return confirmAction('Are you sure you want to cancel this scheduled payment?')">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>You don't have any pending scheduled payments.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Completed Payments Tab -->
+                    <div class="tab-pane fade" id="completed" role="tabpanel" aria-labelledby="completed-tab">
+                        {% if completed_payments %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Recipient</th>
+                                            <th>Amount</th>
+                                            <th>Scheduled Date</th>
+                                            <th>Executed Date</th>
+                                            <th>Description</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for payment in completed_payments %}
+                                        <tr>
+                                            <td>
+                                                {% if payment.payee %}
+                                                    {{ payment.payee.name }}
+                                                {% else %}
+                                                    {{ payment.recipient_email }}
+                                                {% endif %}
+                                            </td>
+                                            <td>₹{{ "%.2f"|format(payment.amount) }}</td>
+                                            <td>{{ payment.scheduled_date.strftime('%d %b %Y') }}</td>
+                                            <td>{{ payment.last_executed.strftime('%d %b %Y') if payment.last_executed else '-' }}</td>
+                                            <td>{{ payment.description or '-' }}</td>
+                                            <td>
+                                                {% if payment.status == 'completed' %}
+                                                    <span class="badge bg-success">Completed</span>
+                                                {% elif payment.status == 'failed' %}
+                                                    <span class="badge bg-danger">Failed</span>
+                                                {% elif payment.status == 'cancelled' %}
+                                                    <span class="badge bg-secondary">Cancelled</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>You don't have any completed scheduled payments.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Create New Payment Tab -->
+                    <div class="tab-pane fade" id="create" role="tabpanel" aria-labelledby="create-tab">
+                        <form method="POST" action="{{ url_for('banking.scheduled_payments') }}">
+                            <div class="mb-3">
+                                <label class="form-label">Select Recipient</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="recipient_type" id="recipient_type_payee" value="payee" checked>
+                                    <label class="form-check-label" for="recipient_type_payee">
+                                        Select from saved payees
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="recipient_type" id="recipient_type_email" value="email">
+                                    <label class="form-check-label" for="recipient_type_email">
+                                        Enter email address
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div id="payee_select_div" class="mb-3">
+                                <label for="payee_id" class="form-label">Select Payee</label>
+                                <select class="form-select" id="payee_id" name="payee_id">
+                                    <option value="">Select a Payee</option>
+                                    {% for payee in payees %}
+                                        <option value="{{ payee.id }}">
+                                            {{ payee.name }} 
+                                            {% if payee.nickname %}({{ payee.nickname }}){% endif %}
+                                            {% if payee.account_type == 'domestic' %}
+                                                - Domestic
+                                            {% elif payee.account_type == 'international' %}
+                                                - International
+                                            {% elif payee.account_type == 'contact' %}
+                                                - Contact
+                                            {% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div id="email_input_div" class="mb-3" style="display: none;">
+                                <label for="recipient_email" class="form-label">Recipient Email</label>
+                                <input type="email" class="form-control" id="recipient_email" name="recipient_email">
+                                <div class="form-text">Must be a registered Manipal Bank user</div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="amount" class="form-label">Amount (₹)</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₹</span>
+                                            <input type="number" class="form-control" id="amount" name="amount" min="1" step="any" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="payment_date" class="form-label">Payment Date</label>
+                                        <input type="date" class="form-control" id="payment_date" name="payment_date" required>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="frequency" class="form-label">Payment Frequency</label>
+                                <select class="form-select" id="frequency" name="frequency" required>
+                                    <option value="once">One-time Payment</option>
+                                    <option value="daily">Daily</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="monthly">Monthly</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Description (Optional)</label>
+                                <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                            </div>
+                            
+                            <div class="alert alert-warning">
+                                <div class="d-flex">
+                                    <div class="me-3">
+                                        <i class="fas fa-info-circle fa-2x"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="alert-heading">Important Notes</h5>
+                                        <ul class="mb-0">
+                                            <li>Scheduled payments require sufficient account balance on the payment date</li>
+                                            <li>Recurring payments will continue until cancelled</li>
+                                            <li>You will receive notifications before each payment</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-purple">
+                                    <i class="fas fa-calendar-check me-2"></i>Schedule Payment
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const recipientTypePayee = document.getElementById('recipient_type_payee');
+        const recipientTypeEmail = document.getElementById('recipient_type_email');
+        const payeeSelectDiv = document.getElementById('payee_select_div');
+        const emailInputDiv = document.getElementById('email_input_div');
+        
+        // Set minimum date for payment date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('payment_date').min = tomorrow.toISOString().split('T')[0];
+        
+        function updateRecipientFields() {
+            if (recipientTypePayee.checked) {
+                payeeSelectDiv.style.display = 'block';
+                emailInputDiv.style.display = 'none';
+                document.getElementById('recipient_email').required = false;
+                document.getElementById('payee_id').required = true;
+            } else {
+                payeeSelectDiv.style.display = 'none';
+                emailInputDiv.style.display = 'block';
+                document.getElementById('recipient_email').required = true;
+                document.getElementById('payee_id').required = false;
+            }
+        }
+        
+        recipientTypePayee.addEventListener('change', updateRecipientFields);
+        recipientTypeEmail.addEventListener('change', updateRecipientFields);
+        
+        // Initialize
+        updateRecipientFields();
+    });
+</script>
+{% endblock %}

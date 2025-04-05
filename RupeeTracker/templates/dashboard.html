@@ -1,0 +1,206 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manipal Bank - Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Left Sidebar: User Info and Balance -->
+    <div class="col-md-4">
+        <div class="card shadow border-0 mb-4">
+            <div class="card-body text-center">
+                <div class="avatar-container mb-3">
+                    <i class="fas fa-user-circle text-purple" style="font-size: 5rem;"></i>
+                </div>
+                <h4>{{ user.name }}</h4>
+                <p class="text-muted">{{ user.email }}</p>
+                <hr>
+                <h5 class="mb-3">Current Balance</h5>
+                <h2 class="balance-display fw-bold">₹{{ "%.2f"|format(user.balance) }}</h2>
+            </div>
+        </div>
+        <div class="card shadow border-0">
+            <div class="card-body">
+                <h5 class="card-title mb-3">Quick Actions</h5>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('banking.deposit') }}" class="btn btn-purple">
+                        <i class="fas fa-money-bill-wave me-2"></i>Deposit
+                    </a>
+                    <a href="{{ url_for('banking.withdraw') }}" class="btn btn-outline-purple">
+                        <i class="fas fa-hand-holding-usd me-2"></i>Withdraw
+                    </a>
+                    <a href="{{ url_for('banking.transfer_options') }}" class="btn btn-outline-purple">
+                        <i class="fas fa-exchange-alt me-2"></i>Transfer Options
+                    </a>
+                    <a href="{{ url_for('banking.manage_payees') }}" class="btn btn-outline-info">
+                        <i class="fas fa-address-book me-2"></i>Manage Payees
+                    </a>
+                    <a href="{{ url_for('banking.scheduled_payments') }}" class="btn btn-outline-success">
+                        <i class="fas fa-calendar-alt me-2"></i>Scheduled Payments
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Content: Recent Transactions and Chart -->
+    <div class="col-md-8">
+        <div class="card shadow border-0 mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Account Overview</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="transactionChart" width="400" height="200"></canvas>
+            </div>
+        </div>
+        
+        <div class="card shadow border-0">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Transactions</h5>
+                <a href="{{ url_for('banking.transactions') }}" class="btn btn-sm btn-purple">View All</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>Type</th>
+                                <th>Description</th>
+                                <th class="text-end">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if transactions %}
+                                {% for transaction in transactions %}
+                                    <tr>
+                                        <td>{{ transaction.timestamp.strftime('%d %b, %Y') }}</td>
+                                        <td>
+                                            {% if transaction.transaction_type == 'deposit' %}
+                                                <span class="badge bg-success">Deposit</span>
+                                            {% elif transaction.transaction_type == 'withdraw' %}
+                                                <span class="badge bg-warning">Withdraw</span>
+                                            {% elif transaction.transaction_type == 'transfer' %}
+                                                {% if transaction.user_id == user.id %}
+                                                    <span class="badge bg-danger">Sent</span>
+                                                {% else %}
+                                                    <span class="badge bg-info">Received</span>
+                                                {% endif %}
+                                            {% elif transaction.transaction_type == 'international' %}
+                                                <span class="badge bg-primary">International</span>
+                                            {% elif transaction.transaction_type == 'contact_payment' %}
+                                                <span class="badge bg-success">To Contact</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary">{{transaction.transaction_type}}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ transaction.description or 'N/A' }}</td>
+                                        <td class="text-end">
+                                            {% if transaction.transaction_type == 'deposit' or 
+                                              (transaction.transaction_type == 'transfer' and transaction.recipient_id and transaction.recipient_id == user.id) %}
+                                                <span class="text-success">+₹{{ "%.2f"|format(transaction.amount) }}</span>
+                                            {% else %}
+                                                <span class="text-danger">-₹{{ "%.2f"|format(transaction.amount) }}</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4">No transactions yet.</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sample data for the chart (in a real app, this would come from the backend)
+        const ctx = document.getElementById('transactionChart').getContext('2d');
+        
+        // Extract transaction data for chart
+        const transactions = [
+            {% for transaction in transactions %}
+                {
+                    date: "{{ transaction.timestamp.strftime('%d %b') }}",
+                    amount: {% if transaction.transaction_type == 'deposit' or 
+                              (transaction.transaction_type == 'transfer' and transaction.recipient_id and transaction.recipient_id == user.id) %}
+                                {{ transaction.amount }}
+                            {% else %}
+                                -{{ transaction.amount }}
+                            {% endif %},
+                    type: "{{ transaction.transaction_type }}"
+                }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+        
+        // If no transactions, add dummy data for aesthetics
+        if (transactions.length === 0) {
+            for (let i = 0; i < 5; i++) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                transactions.push({
+                    date: date.toLocaleDateString('en-US', { day: '2-digit', month: 'short' }),
+                    amount: 0,
+                    type: 'none'
+                });
+            }
+        }
+        
+        // Sort by date (oldest first)
+        transactions.reverse();
+        
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: transactions.map(t => t.date),
+                datasets: [{
+                    label: 'Transaction Amount',
+                    data: transactions.map(t => t.amount),
+                    backgroundColor: 'rgba(103, 58, 183, 0.2)',
+                    borderColor: 'rgba(103, 58, 183, 1)',
+                    borderWidth: 2,
+                    pointBackgroundColor: transactions.map(t => {
+                        if (t.amount > 0) return 'rgba(40, 167, 69, 1)';
+                        if (t.amount < 0) return 'rgba(220, 53, 69, 1)';
+                        return 'rgba(108, 117, 125, 1)';
+                    }),
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const value = context.raw;
+                                return value >= 0 ? `+₹${value.toFixed(2)}` : `-₹${Math.abs(value).toFixed(2)}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '₹' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,92 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manipal Bank - Pay to Contact{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow border-0">
+            <div class="card-header bg-success text-white">
+                <h3 class="mb-0"><i class="fas fa-mobile-alt me-2"></i>Pay to Contact</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="text-center mb-4">
+                    <h5>Available Balance</h5>
+                    <h2 class="balance-display fw-bold">₹{{ "%.2f"|format(user.balance) }}</h2>
+                </div>
+                
+                <form method="POST" action="{{ url_for('banking.pay_to_contact') }}">
+                    <div class="mb-3">
+                        <label for="contact_phone" class="form-label">Contact Phone Number</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                            <input type="tel" class="form-control" id="contact_phone" name="contact_phone" placeholder="+91 98765 43210" required pattern="[0-9+\s]{10,15}">
+                        </div>
+                        <div class="form-text">Enter a valid 10-digit mobile number with country code</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="contact_name" class="form-label">Contact Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                            <input type="text" class="form-control" id="contact_name" name="contact_name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="amount" class="form-label">Amount (₹)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input type="number" class="form-control" id="amount" name="amount" min="1" max="{{ user.balance }}" step="any" required>
+                        </div>
+                        <div class="form-text">Maximum transfer: ₹{{ (user.balance if user.balance < 50000 else 50000)|float|round(2) }}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description (Optional)</label>
+                        <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                    </div>
+                    
+                    <div class="mb-4 form-check">
+                        <input type="checkbox" class="form-check-input" id="save_contact" name="save_contact">
+                        <label class="form-check-label" for="save_contact">Save as contact for future payments</label>
+                    </div>
+                    
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <div class="d-flex">
+                            <div class="me-3">
+                                <i class="fas fa-info-circle fa-2x"></i>
+                            </div>
+                            <div>
+                                <h5 class="alert-heading">How it works</h5>
+                                <p>If your contact is a Manipal Bank customer, they'll receive the money instantly.</p>
+                                <p class="mb-0">If they are not a Manipal Bank customer, they'll receive an SMS with instructions to claim this payment.</p>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg" onclick="return confirmAction('Are you sure you want to send money to this contact?')">
+                            <i class="fas fa-paper-plane me-2"></i>Send Money
+                        </button>
+                        <a href="{{ url_for('banking.transfer_options') }}" class="btn btn-light">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4 bg-light border-0">
+            <div class="card-body">
+                <h5 class="card-title"><i class="fas fa-shield-alt me-2 text-success"></i>Payment Information</h5>
+                <ul class="mt-2 mb-0">
+                    <li>Payments to registered users are processed instantly</li>
+                    <li>Daily limit: ₹50,000 for pay to contact</li>
+                    <li>No processing fees for pay to contact</li>
+                    <li>For non-registered users, you can cancel the payment anytime before it's claimed</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

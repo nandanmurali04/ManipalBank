@@ -1,0 +1,263 @@
+{% extends 'layout.html' %}
+
+{% block title %}Manipal Bank - Manage Payees{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-10">
+        <div class="card shadow border-0">
+            <div class="card-header bg-info text-white">
+                <h3 class="mb-0"><i class="fas fa-user-friends me-2"></i>Manage Payees</h3>
+            </div>
+            <div class="card-body p-4">
+                <ul class="nav nav-tabs mb-4" id="payeeTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="domestic-tab" data-bs-toggle="tab" data-bs-target="#domestic" type="button" role="tab" aria-controls="domestic" aria-selected="true">
+                            <i class="fas fa-home me-1"></i> Domestic
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="international-tab" data-bs-toggle="tab" data-bs-target="#international" type="button" role="tab" aria-controls="international" aria-selected="false">
+                            <i class="fas fa-globe me-1"></i> International
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="contacts-tab" data-bs-toggle="tab" data-bs-target="#contacts" type="button" role="tab" aria-controls="contacts" aria-selected="false">
+                            <i class="fas fa-address-book me-1"></i> Contacts
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="add-tab" data-bs-toggle="tab" data-bs-target="#add" type="button" role="tab" aria-controls="add" aria-selected="false">
+                            <i class="fas fa-plus-circle me-1"></i> Add New
+                        </button>
+                    </li>
+                </ul>
+                
+                <div class="tab-content" id="payeeTabsContent">
+                    <!-- Domestic Payees Tab -->
+                    <div class="tab-pane fade show active" id="domestic" role="tabpanel" aria-labelledby="domestic-tab">
+                        {% if domestic_payees %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Email</th>
+                                            <th>Nickname</th>
+                                            <th>Date Added</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for payee in domestic_payees %}
+                                        <tr>
+                                            <td>{{ payee.name }}</td>
+                                            <td>{{ payee.email }}</td>
+                                            <td>{{ payee.nickname or '-' }}</td>
+                                            <td>{{ payee.created_at.strftime('%d %b %Y') }}</td>
+                                            <td>
+                                                <a href="#" class="btn btn-sm btn-warning me-1" title="Transfer">
+                                                    <i class="fas fa-paper-plane"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-primary me-1" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-danger" title="Delete" onclick="return confirmAction('Are you sure you want to delete this payee?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>You don't have any domestic payees yet.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- International Payees Tab -->
+                    <div class="tab-pane fade" id="international" role="tabpanel" aria-labelledby="international-tab">
+                        {% if international_payees %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Bank</th>
+                                            <th>Account Number</th>
+                                            <th>SWIFT Code</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for payee in international_payees %}
+                                        <tr>
+                                            <td>{{ payee.name }}</td>
+                                            <td>{{ payee.bank_name }}</td>
+                                            <td>{{ payee.account_number }}</td>
+                                            <td>{{ payee.swift_code }}</td>
+                                            <td>
+                                                <a href="#" class="btn btn-sm btn-primary me-1" title="Transfer">
+                                                    <i class="fas fa-paper-plane"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-primary me-1" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-danger" title="Delete" onclick="return confirmAction('Are you sure you want to delete this payee?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>You don't have any international payees yet.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Contacts Tab -->
+                    <div class="tab-pane fade" id="contacts" role="tabpanel" aria-labelledby="contacts-tab">
+                        {% if contact_payees %}
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Phone</th>
+                                            <th>Date Added</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for payee in contact_payees %}
+                                        <tr>
+                                            <td>{{ payee.name }}</td>
+                                            <td>{{ payee.phone }}</td>
+                                            <td>{{ payee.created_at.strftime('%d %b %Y') }}</td>
+                                            <td>
+                                                <a href="#" class="btn btn-sm btn-success me-1" title="Pay">
+                                                    <i class="fas fa-paper-plane"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-primary me-1" title="Edit">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="#" class="btn btn-sm btn-danger" title="Delete" onclick="return confirmAction('Are you sure you want to delete this contact?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>You don't have any contact payees yet.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Add New Payee Tab -->
+                    <div class="tab-pane fade" id="add" role="tabpanel" aria-labelledby="add-tab">
+                        <form method="POST" action="{{ url_for('banking.manage_payees') }}">
+                            <div class="mb-3">
+                                <label for="account_type" class="form-label">Payee Type</label>
+                                <select class="form-select" id="account_type" name="account_type" required>
+                                    <option value="">Select Payee Type</option>
+                                    <option value="domestic">Domestic (Manipal Bank User)</option>
+                                    <option value="international">International Bank Account</option>
+                                    <option value="contact">Mobile Contact</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            
+                            <!-- Domestic Fields -->
+                            <div id="domestic_fields" class="dynamic-fields" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input type="email" class="form-control" id="email" name="email">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="nickname" class="form-label">Nickname (Optional)</label>
+                                    <input type="text" class="form-control" id="nickname" name="nickname">
+                                </div>
+                            </div>
+                            
+                            <!-- International Fields -->
+                            <div id="international_fields" class="dynamic-fields" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="bank_name" class="form-label">Bank Name</label>
+                                    <input type="text" class="form-control" id="bank_name" name="bank_name">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="account_number" class="form-label">Account Number</label>
+                                    <input type="text" class="form-control" id="account_number" name="account_number">
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="swift_code" class="form-label">SWIFT/BIC Code</label>
+                                    <input type="text" class="form-control" id="swift_code" name="swift_code">
+                                </div>
+                            </div>
+                            
+                            <!-- Contact Fields -->
+                            <div id="contact_fields" class="dynamic-fields" style="display: none;">
+                                <div class="mb-3">
+                                    <label for="phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" placeholder="+91 98765 43210">
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-info text-white">
+                                    <i class="fas fa-plus-circle me-2"></i>Add Payee
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const accountTypeSelect = document.getElementById('account_type');
+        const dynamicFields = document.querySelectorAll('.dynamic-fields');
+        
+        accountTypeSelect.addEventListener('change', function() {
+            const selectedValue = this.value;
+            
+            // Hide all fields first
+            dynamicFields.forEach(field => {
+                field.style.display = 'none';
+            });
+            
+            // Show relevant fields based on selection
+            if (selectedValue === 'domestic') {
+                document.getElementById('domestic_fields').style.display = 'block';
+            } else if (selectedValue === 'international') {
+                document.getElementById('international_fields').style.display = 'block';
+            } else if (selectedValue === 'contact') {
+                document.getElementById('contact_fields').style.display = 'block';
+            }
+        });
+    });
+</script>
+{% endblock %}
